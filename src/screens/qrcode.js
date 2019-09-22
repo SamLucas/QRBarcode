@@ -18,7 +18,7 @@ export default class Qrcode extends Component {
 
   state = {
     isModalVisible: false,
-    dados: [{ key: 1, data: 'https://www.youtube.com/watch?v=oQdjFi5yJ4U', type: 'aslajsdk' }]
+    dados: []
   };
 
   _listEmptyComponent = () => {
@@ -29,9 +29,25 @@ export default class Qrcode extends Component {
     )
   }
 
+  deleteItemById = id => {
+    const data_sem_o_id = this.state.dados.filter(item => item.id != id)
+    this.setState({ dados: data_sem_o_id })
+  }
+
+  async clearlist() {
+    await this.setState({ dados: [] })
+    try {
+      await AsyncStorage.setItem('listqrcode', JSON.stringify(this.state.dados))
+    } catch (e) {
+      alert(e)
+    }
+  }
+
   componentDidMount() {
-    AsyncStorage.getItem('listdata').then(value => {
-      this.setState({ dados: JSON.parse(value) })
+    AsyncStorage.getItem('listqrcode').then(value => {
+      if (value != null) {
+        this.setState({ dados: JSON.parse(value) })
+      }
     })
   }
 
@@ -44,11 +60,11 @@ export default class Qrcode extends Component {
         type: value.type
       }
 
-      this.setState({ dados: [...this.state.dados, dados] })
+      await this.setState({ dados: [...this.state.dados, dados] })
       this.setState({ isModalVisible: false })
 
       try {
-        await AsyncStorage.setItem('listdata', JSON.stringify(this.state.dados))
+        await AsyncStorage.setItem('listqrcode', JSON.stringify(this.state.dados))
       } catch (e) {
         alert(e)
       }
@@ -68,6 +84,13 @@ export default class Qrcode extends Component {
             renderItem={({ item }) => <ItemFlatList data={item} />}
             keyExtractor={(item, index) => index.toString()}
           />
+
+          {this.state.dados.length ? (
+            <TouchableOpacity style={style.buttonClearList} onPress={() => this.clearlist()}>
+              <Text style={style.textButtonClearList}>Limpar Lista</Text>
+            </TouchableOpacity>
+          ) : null}
+
         </ScrollView>
 
         <Modal visible={this.state.isModalVisible} animationType='slide'>
@@ -85,6 +108,7 @@ export default class Qrcode extends Component {
               edgeWidth={50}
               edgeHeight={50}
               edgeColor={'#9C27B0'} />
+
 
             <IcomIonicons
               style={style.buttonCloseModal}
@@ -115,6 +139,17 @@ const style = StyleSheet.create({
     borderColor: '#9C27B0',
     marginBottom: 15
   },
+  buttonClearList: {
+    backgroundColor: '#9C27B0',
+    margin: 10,
+    padding: 10,
+    borderRadius: 4,
+  },
+  textButtonClearList: {
+    textAlign: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+  },
   buttonOpenModal: {
     textAlignVertical: "center",
     backgroundColor: '#9C27B0',
@@ -128,7 +163,7 @@ const style = StyleSheet.create({
     bottom: 30,
   },
   buttonCloseModal: {
-    color: 'white',
+    color: '#9C27B0',
     textAlign: "right",
     margin: 20,
   }
