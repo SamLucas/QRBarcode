@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, Linking } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
 // Import icons 
 import IconFontAwesome from 'react-native-vector-icons/FontAwesome'
 import IconEvilIcons from 'react-native-vector-icons/EvilIcons'
 import { View } from 'react-native-animatable';
 
-const Item = ({ data }) => {
+export default class ItemFlatList extends Component {
 
     isURL = str => {
         var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
@@ -19,21 +18,21 @@ const Item = ({ data }) => {
         return pattern.test(str);
     }
 
-    return (
-        <View style={style.container} >
-            <Text style={style.text}>{data.key}</Text>
-            <Text style={style.text}>{data.data.substring(0, 25)}</Text>
-            <View style={style.groupButton}>
-                <IconFontAwesome style={style.icon} name='trash-o' size={25} onPress={() => deleteItemById(data.id)} />
-                {isURL(data.data) ?
-                    <IconEvilIcons name='link' size={30} style={style.icon} onPress={() => Linking.openURL(data.data)} /> :
-                    <IconEvilIcons name='link' size={30} style={[style.iconDisabled, style.icon]} />}
-            </View>
-        </View >
-    );
+    render() {
+        return (
+            <View style={style.container} >
+                <Text style={style.text}>{this.props.data.key}</Text>
+                <Text style={style.text}>{this.props.data.data.substring(0, 25)}</Text>
+                <View style={style.groupButton}>
+                    <IconFontAwesome style={style.icon} name='trash-o' size={25} onPress={() => this.props.deleteItemById(this.props.data.key)} />
+                    {this.isURL(this.props.data.data) ?
+                        <IconEvilIcons name='link' size={30} style={style.icon} onPress={() => Linking.openURL(this.props.data.data)} /> :
+                        <IconEvilIcons name='link' size={30} style={[style.iconDisabled, style.icon]} />}
+                </View>
+            </View >
+        )
+    }
 }
-
-module.exports = Item
 
 const style = StyleSheet.create({
     container: {
